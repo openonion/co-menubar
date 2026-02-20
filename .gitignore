@@ -1,0 +1,5 @@
+.build/
+.build-pkg/
+*.o
+*.d
+CoMenuBar.app/
