@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# Load credentials from .env if exists
+if [ -f .env ]; then
+    source .env
+fi
+
 APP="CoMenuBar.app"
 BUILD_DIR=".build-pkg"
 
@@ -63,7 +68,8 @@ cat > "$APP/Contents/Info.plist" << PLIST
 PLIST
 
 echo "→ Code signing with Developer ID..."
-codesign --deep --force --options runtime --sign "Developer ID Application: Tianle Xie (WABDYB5V3D)" "$APP"
+CODESIGN_ID="${CODESIGN_IDENTITY:-Developer ID Application: Tianle Xie (WABDYB5V3D)}"
+codesign --deep --force --options runtime --sign "$CODESIGN_ID" "$APP"
 
 echo "→ Creating distributable ZIP..."
 ditto -c -k --keepParent "$APP" CoMenuBar.app.zip
