@@ -95,14 +95,23 @@ class CoAgent {
 
     // MARK: - Bundled binary
 
-    private static func coCommand(command: String) -> (URL, [String]) {
+    private static func coCommand(command: String, extraArgs: [String] = []) -> (URL, [String]) {
         if let resources = Bundle.main.resourceURL {
             let bundled = resources.appendingPathComponent("co")
             if FileManager.default.isExecutableFile(atPath: bundled.path) {
-                return (bundled, [command])
+                return (bundled, [command] + extraArgs)
             }
         }
-        return (URL(fileURLWithPath: "/usr/bin/env"), ["co", command])
+        return (URL(fileURLWithPath: "/usr/bin/env"), ["co", command] + extraArgs)
+    }
+
+    // MARK: - Initialization check
+
+    // Returns true if ~/.co directory exists (indicates `co init` was run)
+    static func isInitialized() -> Bool {
+        let coDir = NSHomeDirectory() + "/.co"
+        var isDir: ObjCBool = false
+        return FileManager.default.fileExists(atPath: coDir, isDirectory: &isDir) && isDir.boolValue
     }
 
     // MARK: - Auth check
