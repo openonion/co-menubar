@@ -62,13 +62,25 @@ cat > "$APP/Contents/Info.plist" << PLIST
 </plist>
 PLIST
 
-echo "→ Code signing (ad-hoc)..."
-codesign --deep --force --sign - "$APP"
+echo "→ Code signing with Developer ID..."
+codesign --deep --force --options runtime --sign "Developer ID Application: Tianle Xie (WABDYB5V3D)" "$APP"
+
+echo "→ Creating distributable ZIP..."
+ditto -c -k --keepParent "$APP" CoMenuBar.app.zip
+
+echo "→ Notarizing with Apple..."
+xcrun notarytool submit CoMenuBar.app.zip \
+  --keychain-profile "AC_PASSWORD" \
+  --wait
+
+echo "→ Stapling notarization ticket..."
+xcrun stapler staple "$APP"
 
 echo "→ Cleaning up..."
 rm -rf "$BUILD_DIR"
 
 echo ""
-echo "✓ Done: $APP"
+echo "✓ Done: $APP (signed & notarized)"
 echo "  To install: cp -r $APP /Applications/"
 echo "  To run:     open $APP"
+echo "  Release:    CoMenuBar.app.zip"
