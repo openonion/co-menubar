@@ -75,12 +75,21 @@ echo "→ Creating distributable ZIP..."
 ditto -c -k --keepParent "$APP" CoMenuBar.app.zip
 
 echo "→ Notarizing with Apple..."
-xcrun notarytool submit CoMenuBar.app.zip \
-  --keychain-profile "AC_PASSWORD" \
-  --wait
-
-echo "→ Stapling notarization ticket..."
-xcrun stapler staple "$APP"
+if [ -n "$APPLE_ID" ] && [ -n "$APPLE_TEAM_ID" ] && [ -n "$APPLE_APP_PASSWORD" ]; then
+  if xcrun notarytool submit CoMenuBar.app.zip \
+    --apple-id "$APPLE_ID" \
+    --team-id "$APPLE_TEAM_ID" \
+    --password "$APPLE_APP_PASSWORD" \
+    --wait 2>&1; then
+    echo "→ Stapling notarization ticket..."
+    xcrun stapler staple "$APP"
+  else
+    echo "  Notarization failed (may need to accept Apple Developer agreements)"
+    echo "  Continuing with code-signed (but not notarized) build..."
+  fi
+else
+  echo "  Skipping notarization (no credentials in .env)"
+fi
 
 echo "→ Cleaning up..."
 rm -rf "$BUILD_DIR"
