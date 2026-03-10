@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "CoMenuBar",
+    name: "OOMenuBar",
     platforms: [.macOS(.v12)],
     targets: [
         .executableTarget(
-            name: "CoMenuBar",
-            path: "Sources/CoMenuBar"
+            name: "OOMenuBar",
+            path: "Sources/OOMenuBar"
         )
     ]
 )

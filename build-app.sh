@@ -6,8 +6,12 @@ if [ -f .env ]; then
     source .env
 fi
 
-APP="CoMenuBar.app"
+APP="OOMenuBar.app"
 BUILD_DIR=".build-pkg"
+LOGO_URL="https://raw.githubusercontent.com/wu-changxing/openonion-assets/master/imgs/Onion.png"
+
+VERSION=$(grep '^version' ../connectonion/pyproject.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+echo "→ Version: $VERSION"
 
 echo "→ Building Swift binary..."
 swift build -c release
@@ -23,6 +27,7 @@ python3 -m venv "$BUILD_DIR/venv"
   --onefile \
   --name co \
   --collect-all connectonion \
+  --collect-all rich \
   --distpath "$BUILD_DIR/dist" \
   --workpath "$BUILD_DIR/work" \
   --specpath "$BUILD_DIR" \
@@ -34,11 +39,26 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
 mkdir -p "$APP/Contents/Resources"
 
-cp .build/release/CoMenuBar "$APP/Contents/MacOS/CoMenuBar"
+cp .build/release/OOMenuBar "$APP/Contents/MacOS/OOMenuBar"
 cp "$BUILD_DIR/dist/co" "$APP/Contents/Resources/co"
 chmod +x "$APP/Contents/Resources/co"
 
-VERSION=$(defaults read "$(pwd)/$APP/Contents/Info" CFBundleShortVersionString 2>/dev/null || echo "1.0")
+echo "→ Building app icon..."
+ICONSET="$BUILD_DIR/AppIcon.iconset"
+mkdir -p "$ICONSET"
+curl -s "$LOGO_URL" -o "$BUILD_DIR/logo.png"
+for size in 16 32 64 128 256 512 1024; do
+  sips -z $size $size "$BUILD_DIR/logo.png" --out "$ICONSET/icon_${size}x${size}.png" > /dev/null
+done
+cp "$ICONSET/icon_32x32.png"   "$ICONSET/icon_16x16@2x.png"
+cp "$ICONSET/icon_64x64.png"   "$ICONSET/icon_32x32@2x.png"
+cp "$ICONSET/icon_256x256.png" "$ICONSET/icon_128x128@2x.png"
+cp "$ICONSET/icon_512x512.png" "$ICONSET/icon_256x256@2x.png"
+cp "$ICONSET/icon_1024x1024.png" "$ICONSET/icon_512x512@2x.png"
+iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns"
+
+# Create menu bar icon (44x44 for retina displays)
+sips -Z 44 "$BUILD_DIR/logo.png" --out "$APP/Contents/Resources/menubar-icon.png" > /dev/null
 
 cat > "$APP/Contents/Info.plist" << PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -46,17 +66,19 @@ cat > "$APP/Contents/Info.plist" << PLIST
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>CoMenuBar</string>
+    <string>OOMenuBar</string>
     <key>CFBundleIdentifier</key>
-    <string>com.connectonion.co-menubar</string>
+    <string>com.openonion.oo-menubar</string>
     <key>CFBundleName</key>
-    <string>CoMenuBar</string>
+    <string>OOMenuBar</string>
     <key>CFBundleDisplayName</key>
-    <string>co-menubar</string>
+    <string>OO MenuBar</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleVersion</key>
-    <string>1.0</string>
+    <string>$VERSION</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>$VERSION</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>LSUIElement</key>
@@ -72,11 +94,11 @@ CODESIGN_ID="${CODESIGN_IDENTITY:-Developer ID Application: Tianle Xie (WABDYB5V
 codesign --deep --force --options runtime --sign "$CODESIGN_ID" "$APP"
 
 echo "→ Creating distributable ZIP..."
-ditto -c -k --keepParent "$APP" CoMenuBar.app.zip
+ditto -c -k --keepParent "$APP" OOMenuBar.app.zip
 
 echo "→ Notarizing with Apple..."
 if [ -n "$APPLE_ID" ] && [ -n "$APPLE_TEAM_ID" ] && [ -n "$APPLE_APP_PASSWORD" ]; then
-  if xcrun notarytool submit CoMenuBar.app.zip \
+  if xcrun notarytool submit OOMenuBar.app.zip \
     --apple-id "$APPLE_ID" \
     --team-id "$APPLE_TEAM_ID" \
     --password "$APPLE_APP_PASSWORD" \
@@ -98,4 +120,4 @@ echo ""
 echo "✓ Done: $APP (signed & notarized)"
 echo "  To install: cp -r $APP /Applications/"
 echo "  To run:     open $APP"
-echo "  Release:    CoMenuBar.app.zip"
+echo "  Release:    OOMenuBar.app.zip"

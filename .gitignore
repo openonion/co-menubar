@@ -2,5 +2,7 @@
 .build-pkg/
 *.o
 *.d
-CoMenuBar.app/
+OOMenuBar.app/
 .env
+.co/
+OOMenuBar.app.zip

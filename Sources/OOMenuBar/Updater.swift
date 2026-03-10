@@ -8,7 +8,7 @@ struct Updater {
     // Checks the GitHub releases API for a newer version.
     // Calls back with (tag, releasePageURL) if a newer version exists, or (nil, nil).
     static func checkForUpdate(completion: @escaping (String?, URL?) -> Void) {
-        let url = URL(string: "https://api.github.com/repos/openonion/co-menubar/releases/latest")!
+        let url = URL(string: "https://api.github.com/repos/openonion/oo-menubar/releases/latest")!
         var request = URLRequest(url: url)
         request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
 
