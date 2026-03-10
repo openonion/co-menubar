@@ -40,6 +40,12 @@ mkdir -p "$APP/Contents/MacOS"
 mkdir -p "$APP/Contents/Resources"
 
 cp .build/release/OOMenuBar "$APP/Contents/MacOS/OOMenuBar"
+
+# Sign the co binary BEFORE bundling (required for notarization)
+CODESIGN_ID="${CODESIGN_IDENTITY:-Developer ID Application: Tianle Xie (WABDYB5V3D)}"
+echo "→ Signing co binary..."
+codesign --force --options runtime --timestamp --sign "$CODESIGN_ID" "$BUILD_DIR/dist/co"
+
 cp "$BUILD_DIR/dist/co" "$APP/Contents/Resources/co"
 chmod +x "$APP/Contents/Resources/co"
 
@@ -91,7 +97,7 @@ PLIST
 
 echo "→ Code signing with Developer ID..."
 CODESIGN_ID="${CODESIGN_IDENTITY:-Developer ID Application: Tianle Xie (WABDYB5V3D)}"
-codesign --deep --force --options runtime --sign "$CODESIGN_ID" "$APP"
+codesign --deep --force --options runtime --timestamp --sign "$CODESIGN_ID" "$APP"
 
 echo "→ Creating distributable ZIP..."
 ditto -c -k --keepParent "$APP" OOMenuBar.app.zip
