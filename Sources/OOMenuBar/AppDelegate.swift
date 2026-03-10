@@ -5,6 +5,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var popover: NSPopover!
     private var mainViewController: MainViewController!
     private var logWindowController: LogWindowController?
+    private var settingsWindowController: SettingsWindowController?
 
     private let agent = CoAgent()
     private let statsTracker = StatsTracker()
@@ -44,6 +45,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         mainViewController.onRestart = { [weak self] in self?.restartAgent() }
         mainViewController.onViewLogs = { [weak self] in self?.showLogWindow() }
         mainViewController.onOpenChat = { [weak self] url in self?.openChatURL(url) }
+        mainViewController.onSettings = { [weak self] in self?.showSettings() }
+        mainViewController.onQuit = { [weak self] in NSApp.terminate(self) }
 
         popover = NSPopover()
         popover.contentViewController = mainViewController
@@ -66,6 +69,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         agent.onError = { [weak self] message in
             self?.showError(message)
         }
+
+        statsTracker.onStatsUpdate = { [weak self] uptime, requests in
+            self?.mainViewController.updateStats(uptime: uptime, requests: requests)
+        }
     }
 
     private func updateViewState() {
@@ -86,6 +93,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         logWindowController?.showWindow(nil)
         logWindowController?.window?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func showSettings() {
+        if settingsWindowController == nil {
+            settingsWindowController = SettingsWindowController()
+        }
+        settingsWindowController?.showWindow(nil)
+        settingsWindowController?.window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
