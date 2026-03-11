@@ -21,10 +21,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         checkForUpdate()
         loadChatURL()
 
-        // Auto-start agent on launch (DISABLED for debugging)
-        // DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-        //     self?.startAgent()
-        // }
+        // Auto-start agent on launch
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.startAgent()
+        }
     }
 
     private func buildStatusItem() {
@@ -71,11 +71,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         statsTracker.onStatsUpdate = { [weak self] uptime, requests in
-            self?.mainViewController.updateStats(uptime: uptime, requests: requests)
+            guard let self = self else { return }
+            _ = self.mainViewController.view  // Ensure view is loaded
+            self.mainViewController.updateStats(uptime: uptime, requests: requests)
         }
     }
 
     private func updateViewState() {
+        // Ensure view is loaded before updating state
+        _ = mainViewController.view
+
         let model = agent.isRunning ? agent.currentModel : nil
         mainViewController.updateState(running: agent.isRunning, model: model)
         updateStatusIcon(running: agent.isRunning)
@@ -180,7 +185,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit OpenOnion", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit OpenOnion", action: #selector(quitApp), keyEquivalent: "q"))
 
         self.statusItem.menu = menu
         self.statusItem.button?.performClick(nil)
@@ -203,6 +208,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func stopAgentFromMenu() {
         stopAgent()
+    }
+
+    @objc private func quitApp() {
+        stopAgent()
+        NSApp.terminate(nil)
     }
 
     @objc private func restartAgent() {

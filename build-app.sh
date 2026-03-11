@@ -21,7 +21,7 @@ rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
 python3 -m venv "$BUILD_DIR/venv"
-"$BUILD_DIR/venv/bin/pip" install connectonion pyinstaller --quiet
+"$BUILD_DIR/venv/bin/pip" install --force-reinstall --no-cache-dir ../connectonion pyinstaller --quiet
 
 CODESIGN_ID="${CODESIGN_IDENTITY:-Developer ID Application: Tianle Xie (WABDYB5V3D)}"
 
