@@ -56,6 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func wireAgent() {
         agent.onStateChange = { [weak self] in
             self?.updateViewState()
+            self?.updateChatURL()  // Update chat URL when agent starts/stops
         }
 
         agent.onOutput = { [weak self] text in
@@ -89,6 +90,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             statsTracker.markAgentStarted()
         } else {
             statsTracker.markAgentStopped()
+        }
+    }
+
+    private func updateChatURL() {
+        guard agent.isRunning else {
+            mainViewController.updateChatURL(nil)
+            return
+        }
+
+        // Load agent address and construct chat URL
+        let coDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".co")
+        let addressPath = coDir.appendingPathComponent("address.json")
+
+        if let data = try? Data(contentsOf: addressPath),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let address = json["address"] as? String {
+            let chatURL = "https://chat.openonion.ai/\(address)"
+            mainViewController.updateChatURL(chatURL)
         }
     }
 
