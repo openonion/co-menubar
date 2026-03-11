@@ -23,6 +23,8 @@ mkdir -p "$BUILD_DIR"
 python3 -m venv "$BUILD_DIR/venv"
 "$BUILD_DIR/venv/bin/pip" install connectonion pyinstaller --quiet
 
+CODESIGN_ID="${CODESIGN_IDENTITY:-Developer ID Application: Tianle Xie (WABDYB5V3D)}"
+
 "$BUILD_DIR/venv/bin/pyinstaller" \
   --onefile \
   --name co \
@@ -32,6 +34,7 @@ python3 -m venv "$BUILD_DIR/venv"
   --workpath "$BUILD_DIR/work" \
   --specpath "$BUILD_DIR" \
   --log-level WARN \
+  --codesign-identity "$CODESIGN_ID" \
   "$BUILD_DIR/venv/bin/co"
 
 echo "→ Creating .app bundle..."
@@ -41,11 +44,7 @@ mkdir -p "$APP/Contents/Resources"
 
 cp .build/release/OOMenuBar "$APP/Contents/MacOS/OOMenuBar"
 
-# Sign the co binary BEFORE bundling (required for notarization)
-CODESIGN_ID="${CODESIGN_IDENTITY:-Developer ID Application: Tianle Xie (WABDYB5V3D)}"
-echo "→ Signing co binary..."
-codesign --force --options runtime --timestamp --sign "$CODESIGN_ID" "$BUILD_DIR/dist/co"
-
+# PyInstaller already signed the co binary with --codesign-identity
 cp "$BUILD_DIR/dist/co" "$APP/Contents/Resources/co"
 chmod +x "$APP/Contents/Resources/co"
 
@@ -96,8 +95,10 @@ cat > "$APP/Contents/Info.plist" << PLIST
 PLIST
 
 echo "→ Code signing with Developer ID..."
-CODESIGN_ID="${CODESIGN_IDENTITY:-Developer ID Application: Tianle Xie (WABDYB5V3D)}"
-codesign --deep --force --options runtime --timestamp --sign "$CODESIGN_ID" "$APP"
+# Sign each component explicitly (don't use --deep which is deprecated)
+codesign --force --options runtime --timestamp --sign "$CODESIGN_ID" "$APP/Contents/Resources/co"
+codesign --force --options runtime --timestamp --sign "$CODESIGN_ID" "$APP/Contents/MacOS/OOMenuBar"
+codesign --force --options runtime --timestamp --sign "$CODESIGN_ID" "$APP"
 
 echo "→ Creating distributable ZIP..."
 ditto -c -k --keepParent "$APP" OOMenuBar.app.zip
