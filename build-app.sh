@@ -10,12 +10,6 @@ APP="OOMenuBar.app"
 BUILD_DIR=".build-pkg"
 LOGO_URL="https://raw.githubusercontent.com/wu-changxing/openonion-assets/master/imgs/Onion.png"
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  🤖 Building with Claude Code"
-echo "  github.com/anthropics/claude-code"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-
 VERSION=$(grep '^version' ../connectonion/pyproject.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
 echo "→ Version: $VERSION"
 
