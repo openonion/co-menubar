@@ -10,6 +10,12 @@ APP="OOMenuBar.app"
 BUILD_DIR=".build-pkg"
 LOGO_URL="https://raw.githubusercontent.com/wu-changxing/openonion-assets/master/imgs/Onion.png"
 
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  🤖 Building with Claude Code"
+echo "  github.com/anthropics/claude-code"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
 VERSION=$(grep '^version' ../connectonion/pyproject.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
 echo "→ Version: $VERSION"
 
@@ -125,6 +131,17 @@ rm -rf "$BUILD_DIR"
 
 echo ""
 echo "✓ Done: $APP (signed & notarized)"
-echo "  To install: cp -r $APP /Applications/"
-echo "  To run:     open $APP"
 echo "  Release:    OOMenuBar.app.zip"
+echo ""
+
+# Auto-install to local Mac (built by Claude Code)
+echo "→ Installing to /Applications/..."
+killall OOMenuBar 2>/dev/null || true
+sleep 1
+rm -rf /Applications/$APP
+cp -r $APP /Applications/
+echo "✓ Installed to /Applications/$APP"
+echo ""
+echo "→ Starting OOMenuBar..."
+open /Applications/$APP
+echo "✓ Done! OOMenuBar is starting..."
