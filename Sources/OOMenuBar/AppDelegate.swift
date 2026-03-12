@@ -99,7 +99,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        // Get agent address from /info endpoint
+        // Get agent info (address, model, etc.) from /info endpoint
         let url = URL(string: "http://localhost:8000/info")!
         let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             guard let data = data,
@@ -109,8 +109,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
 
             let chatURL = "https://chat.openonion.ai/\(address)"
+            let model = json["model"] as? String
+
             DispatchQueue.main.async {
                 self?.mainViewController.updateChatURL(chatURL)
+                // Update model from /info endpoint
+                if let model = model {
+                    self?.mainViewController.updateModel(model)
+                }
             }
         }
         task.resume()

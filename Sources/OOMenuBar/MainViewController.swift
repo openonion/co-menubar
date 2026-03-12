@@ -392,6 +392,12 @@ class MainViewController: NSViewController {
         }
     }
 
+    func updateModel(_ model: String) {
+        if isViewLoaded && isRunning {
+            modelLabel.stringValue = model
+        }
+    }
+
     func updateStats(uptime: String?, requests: Int) {
         self.uptime = uptime
         self.requestCount = requests
