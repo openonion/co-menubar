@@ -99,16 +99,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        // Load agent address and construct chat URL
-        let coDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".co")
-        let addressPath = coDir.appendingPathComponent("address.json")
+        // Get agent address from /info endpoint
+        let url = URL(string: "http://localhost:8000/info")!
+        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let address = json["address"] as? String else {
+                return
+            }
 
-        if let data = try? Data(contentsOf: addressPath),
-           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let address = json["address"] as? String {
             let chatURL = "https://chat.openonion.ai/\(address)"
-            mainViewController.updateChatURL(chatURL)
+            DispatchQueue.main.async {
+                self?.mainViewController.updateChatURL(chatURL)
+            }
         }
+        task.resume()
     }
 
     private func showLogWindow() {
