@@ -181,7 +181,7 @@ class MainViewController: NSViewController {
         // Open Chat item (with accent color)
         y -= itemHeight
         openChatItem = HoverButton(
-            title: "🌐  Open Chat in Browser",
+            title: "Open Chat in Browser",
             fontSize: 13,
             hoverColor: accentColor.withAlphaComponent(0.15),
             textColor: accentColor
@@ -195,7 +195,7 @@ class MainViewController: NSViewController {
         // View Logs item
         y -= itemHeight + 4
         viewLogsItem = HoverButton(
-            title: "📋  View Logs",
+            title: "View Logs",
             fontSize: 13,
             hoverColor: hoverColor,
             textColor: textColor
@@ -208,7 +208,7 @@ class MainViewController: NSViewController {
         // Settings item
         y -= itemHeight + 4
         settingsItem = HoverButton(
-            title: "⚙️  Settings",
+            title: "Settings",
             fontSize: 13,
             hoverColor: hoverColor,
             textColor: textColor
@@ -229,7 +229,7 @@ class MainViewController: NSViewController {
         // Stop/Start button
         y -= itemHeight
         stopButton = HoverButton(
-            title: "▶️  Start Agent",
+            title: "Start Agent",
             fontSize: 13,
             hoverColor: hoverColor,
             textColor: textColor
@@ -242,7 +242,7 @@ class MainViewController: NSViewController {
         // Restart button
         y -= itemHeight + 4
         restartButton = HoverButton(
-            title: "🔄  Restart Agent",
+            title: "Restart Agent",
             fontSize: 13,
             hoverColor: hoverColor,
             textColor: textColor
@@ -361,22 +361,22 @@ class MainViewController: NSViewController {
         isRunning = running
 
         if running {
-            statusLabel.stringValue = "⚡ Agent is Running"
+            statusLabel.stringValue = "Agent is Running"
             statusLabel.textColor = runningColor  // Green
             modelLabel.stringValue = model ?? "co/gemini-2.5-pro"
             modelLabel.textColor = subtleTextColor
-            stopButton.setTitle("⏸  Stop Agent")
+            stopButton.setTitle("Stop Agent")
             stopButton.contentTintColor = subtleTextColor
             restartButton.isHidden = false
             statsCard.isHidden = false
             statsCard.borderColor = runningColor.withAlphaComponent(0.3)
             statsCard.borderWidth = 1
         } else {
-            statusLabel.stringValue = "💤 Agent is Stopped"
+            statusLabel.stringValue = "Agent is Stopped"
             statusLabel.textColor = stoppedColor  // Gray
             modelLabel.stringValue = "Ready to help with AI tasks"
             modelLabel.textColor = subtleTextColor
-            stopButton.setTitle("▶️  Start Agent")
+            stopButton.setTitle("Start Agent")
             stopButton.contentTintColor = accentColor
             restartButton.isHidden = true
             statsCard.isHidden = true
