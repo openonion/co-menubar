@@ -98,14 +98,19 @@ class MainViewController: NSViewController {
     private let itemHeight: CGFloat = 32
     private let spacing: CGFloat = 12
 
-    // MARK: - Colors
+    // MARK: - Colors (Redesigned)
 
-    private let bgColor = NSColor(calibratedRed: 0.11, green: 0.11, blue: 0.12, alpha: 0.98)
-    private let cardBgColor = NSColor(calibratedRed: 0.16, green: 0.16, blue: 0.17, alpha: 1.0)
-    private let textColor = NSColor(calibratedRed: 0.90, green: 0.90, blue: 0.91, alpha: 1.0)
-    private let subtleTextColor = NSColor(calibratedRed: 0.65, green: 0.65, blue: 0.66, alpha: 1.0)
-    private let separatorColor = NSColor(calibratedRed: 0.25, green: 0.25, blue: 0.26, alpha: 1.0)
-    private let hoverColor = NSColor(calibratedRed: 0.20, green: 0.20, blue: 0.21, alpha: 1.0)
+    private let bgColor = NSColor(calibratedRed: 0.09, green: 0.09, blue: 0.11, alpha: 0.98)
+    private let cardBgColor = NSColor(calibratedRed: 0.13, green: 0.13, blue: 0.16, alpha: 1.0)
+    private let textColor = NSColor.white
+    private let subtleTextColor = NSColor(calibratedRed: 0.70, green: 0.70, blue: 0.75, alpha: 1.0)
+    private let separatorColor = NSColor(calibratedRed: 0.22, green: 0.22, blue: 0.25, alpha: 1.0)
+    private let hoverColor = NSColor(calibratedRed: 0.18, green: 0.18, blue: 0.22, alpha: 1.0)
+
+    // Status colors
+    private let runningColor = NSColor(calibratedRed: 0.30, green: 0.85, blue: 0.45, alpha: 1.0)  // Green
+    private let stoppedColor = NSColor(calibratedRed: 0.60, green: 0.60, blue: 0.65, alpha: 1.0)  // Gray
+    private let accentColor = NSColor(calibratedRed: 0.40, green: 0.60, blue: 1.0, alpha: 1.0)   // Blue
 
     // MARK: - Lifecycle
 
@@ -125,61 +130,61 @@ class MainViewController: NSViewController {
     private func buildUI() {
         var y: CGFloat = H - padding
 
-        // Status label (large, centered)
-        y -= 40
+        // Status label (larger, more prominent)
+        y -= 45
         statusLabel = createLabel(
             text: "💤 Agent is Stopped",
-            fontSize: 18,
-            weight: .semibold,
+            fontSize: 20,
+            weight: .bold,
             color: textColor,
             alignment: .center
         )
-        statusLabel.frame = NSRect(x: padding, y: y, width: W - padding * 2, height: 30)
+        statusLabel.frame = NSRect(x: padding, y: y, width: W - padding * 2, height: 32)
         view.addSubview(statusLabel)
 
-        // Model label (centered subtitle)
-        y -= 22
+        // Model label (centered subtitle, slightly larger)
+        y -= 24
         modelLabel = createLabel(
             text: "Ready to help with AI tasks",
-            fontSize: 12,
+            fontSize: 13,
             weight: .regular,
             color: subtleTextColor,
             alignment: .center
         )
-        modelLabel.frame = NSRect(x: padding, y: y, width: W - padding * 2, height: 18)
+        modelLabel.frame = NSRect(x: padding, y: y, width: W - padding * 2, height: 20)
         view.addSubview(modelLabel)
 
-        // Stats card
+        // Stats card (improved styling)
         y -= spacing + 60
         statsCard = NSBox()
         statsCard.boxType = .custom
         statsCard.isTransparent = false
         statsCard.fillColor = cardBgColor
-        statsCard.cornerRadius = 8
+        statsCard.cornerRadius = 10
         statsCard.frame = NSRect(x: padding, y: y, width: W - padding * 2, height: 60)
         statsCard.isHidden = true // Hidden when stopped
         view.addSubview(statsCard)
 
-        // Uptime label (inside card)
-        uptimeLabel = createLabel(text: "Uptime     --", fontSize: 12, weight: .regular, color: textColor)
-        uptimeLabel.frame = NSRect(x: 12, y: 30, width: statsCard.frame.width - 24, height: 18)
+        // Uptime label (inside card, better hierarchy)
+        uptimeLabel = createLabel(text: "Uptime     --", fontSize: 13, weight: .medium, color: textColor)
+        uptimeLabel.frame = NSRect(x: 16, y: 30, width: statsCard.frame.width - 32, height: 18)
         statsCard.addSubview(uptimeLabel)
 
-        // Requests label (inside card)
-        requestsLabel = createLabel(text: "Requests   0 completed", fontSize: 12, weight: .regular, color: textColor)
-        requestsLabel.frame = NSRect(x: 12, y: 10, width: statsCard.frame.width - 24, height: 18)
+        // Requests label (inside card, better hierarchy)
+        requestsLabel = createLabel(text: "Requests   0 completed", fontSize: 13, weight: .medium, color: textColor)
+        requestsLabel.frame = NSRect(x: 16, y: 10, width: statsCard.frame.width - 32, height: 18)
         statsCard.addSubview(requestsLabel)
 
         // Menu items section
         y -= spacing * 2
 
-        // Open Chat item
+        // Open Chat item (with accent color)
         y -= itemHeight
         openChatItem = HoverButton(
             title: "🌐  Open Chat in Browser",
             fontSize: 13,
-            hoverColor: hoverColor,
-            textColor: textColor
+            hoverColor: accentColor.withAlphaComponent(0.15),
+            textColor: accentColor
         )
         openChatItem.frame = NSRect(x: padding, y: y, width: W - padding * 2, height: itemHeight)
         openChatItem.target = self
@@ -357,14 +362,22 @@ class MainViewController: NSViewController {
 
         if running {
             statusLabel.stringValue = "⚡ Agent is Running"
+            statusLabel.textColor = runningColor  // Green
             modelLabel.stringValue = model ?? "co/gemini-2.5-pro"
+            modelLabel.textColor = subtleTextColor
             stopButton.setTitle("⏸  Stop Agent")
+            stopButton.contentTintColor = subtleTextColor
             restartButton.isHidden = false
             statsCard.isHidden = false
+            statsCard.borderColor = runningColor.withAlphaComponent(0.3)
+            statsCard.borderWidth = 1
         } else {
             statusLabel.stringValue = "💤 Agent is Stopped"
+            statusLabel.textColor = stoppedColor  // Gray
             modelLabel.stringValue = "Ready to help with AI tasks"
+            modelLabel.textColor = subtleTextColor
             stopButton.setTitle("▶️  Start Agent")
+            stopButton.contentTintColor = accentColor
             restartButton.isHidden = true
             statsCard.isHidden = true
         }
