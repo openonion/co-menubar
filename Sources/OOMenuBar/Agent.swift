@@ -57,8 +57,8 @@ class CoAgent {
 
     // MARK: - Public Properties
 
-    /// Current AI model being used (default: co/gemini-2.5-pro)
-    var currentModel: String = "co/gemini-2.5-pro"
+    /// Current AI model being used (default: co/gemini-3-flash-preview)
+    var currentModel: String = "co/gemini-3-flash-preview"
 
     /// Current chat URL (e.g., "https://chat.openonion.ai/0xcd92510...")
     var chatURL: String?
@@ -86,7 +86,7 @@ class CoAgent {
     func start() {
         guard !isRunning else { return }
 
-        let (execURL, args) = CoAgent.coCommand(command: "ai", extraArgs: [])
+        let (execURL, args) = CoAgent.coCommand(command: "ai", extraArgs: ["-m", currentModel])
         let p = Process()
         p.executableURL = execURL
         p.arguments = args
